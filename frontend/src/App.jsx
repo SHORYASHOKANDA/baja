@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import Select from 'react-tailwindcss-select';
 
-// Set the document title to your roll number
 document.title = '21BCE10310';
 
 axios.defaults.headers.post['Content-Type'] = 'application/json';
@@ -23,18 +22,17 @@ function App() {
   ];
 
   const onSubmit = async (data) => {
-    setApiError(''); // Clear previous errors
+    setApiError('');
     try {
       const parsedJson = JSON.parse(data.jsonInput);
 
-      // Validate that 'data' is an array
       if (!Array.isArray(parsedJson.data)) {
         throw new Error("Invalid input. Ensure 'data' is an array.");
       }
 
       const res = await axios.post('/bfhl', parsedJson);
       setResponse(res.data);
-      reset(); // Clear the form after successful submission
+      reset();
     } catch (error) {
       console.error('Error:', error);
       setApiError(error.message || 'An error occurred');
@@ -42,13 +40,12 @@ function App() {
   };
 
   const handleSelectChange = (value) => {
-    setSelectedOptions(value);
+    setSelectedOptions(value || []);
   };
 
   const renderResponse = () => {
     if (!response) return null;
 
-    // If nothing is selected, show the entire response
     if (selectedOptions.length === 0) {
       return (
         <div className="mt-4 p-4 bg-gray-100 rounded-lg">
@@ -58,7 +55,6 @@ function App() {
       );
     }
 
-    // Filter the response based on selected options
     const filteredResponse = selectedOptions.reduce((acc, option) => {
       if (response[option.value]) {
         acc[option.label] = response[option.value];
@@ -78,7 +74,7 @@ function App() {
     <div className="p-4">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <fieldset className='border-solid border-2 border-gray rounded-xl'>
-          <legend className='ml-10'>API Input:</legend>
+          <legend className='ml-5 p-1'>API Input:</legend>
           <input
             type='text'
             className='p-3 rounded-lg bg-white w-full'
@@ -116,7 +112,8 @@ function App() {
       {response && (
         <>
           <div className="mt-4">
-            <label className="block mb-2">Select Response Data to Display:</label>
+            <fieldset className='border-solid border-2 border-gray rounded-xl'>
+              <legend className='ml-5 p-1'>Multi Filter</legend>
             <Select
               isMultiple={true}
               value={selectedOptions}
@@ -132,6 +129,7 @@ function App() {
                   }`,
               }}
             />
+            </fieldset>
           </div>
           {renderResponse()}
         </>
