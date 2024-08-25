@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
+import Select from 'react-tailwindcss-select';
 
 // Set the document title to your roll number
 document.title = '21BCE10310';
 
-axios.defaults.headers.post["Content-Type"] = "application/json";
+axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.baseURL = import.meta.env.VITE_APP_BASE_URL;
 axios.defaults.withCredentials = true;
 
@@ -40,17 +41,27 @@ function App() {
     }
   };
 
-  const handleSelectChange = (e) => {
-    const selected = Array.from(e.target.selectedOptions, option => option.value);
-    setSelectedOptions(selected);
+  const handleSelectChange = (value) => {
+    setSelectedOptions(value);
   };
 
   const renderResponse = () => {
     if (!response) return null;
 
+    // If nothing is selected, show the entire response
+    if (selectedOptions.length === 0) {
+      return (
+        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+          <h3 className="font-bold text-lg">Response:</h3>
+          <pre className="bg-gray-200 p-2 rounded">{JSON.stringify(response, null, 2)}</pre>
+        </div>
+      );
+    }
+
+    // Filter the response based on selected options
     const filteredResponse = selectedOptions.reduce((acc, option) => {
-      if (response[option]) {
-        acc[option] = response[option];
+      if (response[option.value]) {
+        acc[option.label] = response[option.value];
       }
       return acc;
     }, {});
@@ -66,10 +77,11 @@ function App() {
   return (
     <div className="p-4">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <label className="block">
-          JSON Input:
-          <textarea
-            className='p-3 rounded-lg bg-white border w-full'
+        <fieldset className='border-solid border-2 border-gray rounded-xl'>
+          <legend className='ml-10'>API Input:</legend>
+          <input
+            type='text'
+            className='p-3 rounded-lg bg-white w-full'
             {...register('jsonInput', {
               required: 'This field is required',
               validate: value => {
@@ -93,10 +105,10 @@ function App() {
           {apiError && (
             <p className="text-red-500 text-sm">{apiError}</p>
           )}
-        </label>
+        </fieldset>
         <button
           type="submit"
-          className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'>
+          className='px-4 py-2 bg-blue-500 text-white font-bold rounded w-full hover:bg-blue-600'>
           Submit
         </button>
       </form>
@@ -105,16 +117,21 @@ function App() {
         <>
           <div className="mt-4">
             <label className="block mb-2">Select Response Data to Display:</label>
-            <select
-              multiple
+            <Select
+              isMultiple={true}
+              value={selectedOptions}
               onChange={handleSelectChange}
-              className="w-full p-2 border rounded">
-              {options.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              options={options}
+              placeholder="Select options"
+              classNames={{
+                menuButton: ({ isDisabled }) =>
+                  `flex text-sm text-left border-gray-300 focus:outline-none bg-white ${
+                    isDisabled
+                      ? 'opacity-50'
+                      : 'border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200'
+                  }`,
+              }}
+            />
           </div>
           {renderResponse()}
         </>
