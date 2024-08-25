@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 
 // Set the document title to your roll number
-document.title = 'ABCD123'; // Replace 'ABCD123' with your actual roll number
+document.title = '21BCE10310';
 
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.baseURL = import.meta.env.VITE_APP_BASE_URL;
